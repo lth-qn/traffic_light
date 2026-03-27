@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package traffic_signal;
+
+enum LightColor {
+  RED = 0;
+  GREEN = 1;
+  ORANGE = 2;
+  DEFAULT = 3;
+}
+
+message TrafficLightStatus {
+  string id = 1;          // traffic_signal light id
+  LightColor color = 2;   // current color
+}
+
+message TrafficLightCommand {
+  string id = 1;          // traffic_signal light id
+  LightColor target_color = 2; // requested new color
+}
