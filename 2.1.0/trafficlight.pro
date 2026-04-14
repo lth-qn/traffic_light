@@ -1,4 +1,5 @@
 QT += core gui widgets
+QT += mqtt
 CONFIG += c++17
 TARGET = traffic_light
 

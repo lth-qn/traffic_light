@@ -1,4 +1,5 @@
-QT += core gui widgets
+QT += core gui widgets mqtt
+QT += mqtt
 CONFIG += c++17
 TARGET = traffic_pannel
 

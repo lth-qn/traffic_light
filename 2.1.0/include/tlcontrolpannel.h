@@ -1,14 +1,17 @@
 #pragma once
-#include <QObject>
+#include <QMainWindow> // Change from QApplication
 #include <QLabel>
 #include <QPushButton>
-#include "traffic_signal.pb.h"
-#include "mqtt/async_client.h"
+#include "traffic_light/traffic_signal.pb.h"
+// Ersetze: #include "mqtt/async_client.h"
+// Durch:
+#include <QtMqtt/qmqttclient.h>
 
-class TLControlPannel : public QObject {
+class TLControlPannel : public QMainWindow { // change from qobject to qmainwindow
     Q_OBJECT
 public:
-    explicit TLControlPannel(QObject *parent = nullptr);
+    TLControlPannel(QWidget *parent = nullptr);
+    // ~TLControlPannel();
     void connectToBroker(const std::string& address);
     void sendCommand(const std::string& id, traffic_signal::LightColor target);
 
@@ -27,7 +30,9 @@ private:
     void nextAutomaticLight();
     void updateLights();
 
-    mqtt::async_client* client;
+    // mqtt::async_client* client;
+    QMqttClient client;
     traffic_signal::LightColor currentColor;
-    void onMessage(mqtt::const_message_ptr msg);
+    // void onMessage(mqtt::const_message_ptr msg);
+    void onMessage(const QByteArray &payload, const QMqttTopicName &topic);
 };

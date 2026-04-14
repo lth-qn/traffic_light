@@ -1,12 +1,13 @@
 #pragma once
 #include <atomic>
-#include <QTrafficLight>
+#include <QMainWindow> // Change from QApplication
 #include <QLabel>
 #include <QTimer>
-#include "mqttclient.h"
-#include "traffic_signal.pb.h"
+#include <QtMqtt/qmqttclient.h>
+#include "traffic_light/traffic_signal.pb.h"
+#include "tlcontrolpannel.h"
 
-class TrafficLight : public QTrafficLight {
+class TrafficLight : public QMainWindow { // Change from QApplication
     Q_OBJECT
 public:
     TrafficLight(QWidget *parent = nullptr);
@@ -21,7 +22,8 @@ private:
     QTimer* timer;
     traffic_signal::LightColor currentColor;
 
-    TLControlPannel* mqttClient;
+    // TLControlPannel* mqttClient;
+    QMqttClient client;
 
     void updateLights();
     void nextAutomaticLight();

@@ -1,4 +1,4 @@
-#include "tlcontrolpannel.h"
+#include "include/tlcontrolpannel.h"
 #include <QApplication>
 #include <google/protobuf/stubs/common.h>
 
