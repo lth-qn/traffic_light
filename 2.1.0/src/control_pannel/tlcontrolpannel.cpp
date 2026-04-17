@@ -5,9 +5,6 @@
 #include <QMqttClient>
 #include "traffic_light/traffic_signal.pb.h"
 
-// const std::string STATUS_TOPIC = "traffic_signal/status";
-// const std::string COMMAND_TOPIC = "traffic_signal/command";
-// const std::string CLIENT_ID = "qt_subscriber";
 const QString brokerHost = "127.0.0.1"; // Hint: no http://, only IP
 const quint16 brokerPort = 1883;
 const QString cmdTopic = "traffic/1/command";
@@ -43,8 +40,6 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     layout->addWidget(btnGreen);
     layout->addWidget(btnContinue);
 
-    // client = new mqtt::async_client("", CLIENT_ID);
-    // client = new QMqttClient*("", CLIENT_ID);
     client.setHostname(brokerHost);
     client.setPort(brokerPort);
     client.setClientId("ControlPanel_1"); // In tlcontrolpannel.cpp
@@ -52,13 +47,6 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
         [this](const QByteArray &message, const QMqttTopicName &topic) {
-            // // TODO: this is use to receive cmd (protobuf)
-            // qDebug() << "[Control pannel] message received" << topic.name() << ":" << message;
-
-            // // debug messages
-            // int color = message.toInt();
-            // qDebug() << "Received color:" << color;
-
             // process messages
             if (topic.name() == staTopic) {
 
@@ -78,23 +66,6 @@ TLControlPannel::TLControlPannel(QWidget *parent)
                 // Update UI
                 updateLights();
 
-                // traffic_signal::LightColor statusColour;
-
-                // if (statusColour.ParseFromArray(message.data(), message.size())) {
-
-                //     auto color = statusColour;   // enum from protobuf
-
-                //     // update internal state
-                //     currentColor = color;
-
-                //     // update UI
-                //     updateLights();
-
-                //     qDebug() << "Received color:" << color;
-
-                // } else {
-                //     qDebug() << "❌ Failed to parse protobuf message!";
-                // }
             }
         }
     );
@@ -117,24 +88,41 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     client.connectToHost();
 
     
-    // // 1. Verbindung für den "Red" Button
-    // connect(btnRed, &QPushButton::clicked, this, [this]() {
-    //     qDebug() << "red control clicked!";
-    //     sendCommand("TL1", traffic_signal::RED);
-    // });
+    // 1. Verbindung für den "Red" Button
+    connect(btnRed, &QPushButton::clicked, this, [this]() {
+        qDebug() << "red control clicked!";
+        if (client.state() == QMqttClient::Connected) {
+            QByteArray currentColorPayload = QByteArray::number(static_cast<int>(traffic_signal::RED));
+            client.publish(QMqttTopicName(cmdTopic), currentColorPayload);
+        } else {
+            qDebug() << "⚠️ Not connected, cannot publish";
+        }
+    });
 
-    // // 2. Verbindung für den "Green" Button
-    // connect(btnGreen, &QPushButton::clicked, this, [this]() {
-    //     qDebug() << "green control clicked!";
-    //     sendCommand("TL1", traffic_signal::GREEN);
-    // });
+    // 2. Verbindung für den "Green" Button
+    connect(btnGreen, &QPushButton::clicked, this, [this]() {
+        qDebug() << "green control clicked!";
+        if (client.state() == QMqttClient::Connected) {
+            QByteArray currentColorPayload = QByteArray::number(static_cast<int>(traffic_signal::GREEN));
+            client.publish(QMqttTopicName(cmdTopic), currentColorPayload);
+        } else {
+            qDebug() << "⚠️ Not connected, cannot publish";
+        }
+        // sendCommand("TL1", traffic_signal::GREEN);
+    });
 
-    // // 3. Verbindung für den "Continue" Button (z.B. für MQTT-Logik)
-    // connect(btnContinue, &QPushButton::clicked, this, [this]() {
-    //     // Hier deine Logik für den MQTT-Client oder Programmfluss
-    //     qDebug() << "Continue clicked!";
-    //     sendCommand("TL1", traffic_signal::DEFAULT);
-    // });
+    // 3. Verbindung für den "Continue" Button (z.B. für MQTT-Logik)
+    connect(btnContinue, &QPushButton::clicked, this, [this]() {
+        // Hier deine Logik für den MQTT-Client oder Programmfluss
+        qDebug() << "Continue clicked!";
+        if (client.state() == QMqttClient::Connected) {
+            QByteArray currentColorPayload = QByteArray::number(static_cast<int>(traffic_signal::DEFAULT));
+            client.publish(QMqttTopicName(cmdTopic), currentColorPayload);
+        } else {
+            qDebug() << "⚠️ Not connected, cannot publish";
+        }
+        // sendCommand("TL1", traffic_signal::DEFAULT);
+    });
 
 }
 

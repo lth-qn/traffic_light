@@ -36,8 +36,32 @@ TrafficLight::TrafficLight(QWidget *parent)
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
         [this](const QByteArray &message, const QMqttTopicName &topic) {
-            // TODO: this is use to receive cmd (protobuf)
-            qDebug() << "[Traffic light] Nachricht empfangen auf" << topic.name() << ":" << message;
+            // // TODO: this is use to receive cmd (protobuf)
+            // qDebug() << "[Traffic light] Nachricht empfangen auf" << topic.name() << ":" << message;
+            if (topic.name() == cmdTopic) {
+
+                bool ok;
+                int value = message.toInt(&ok);
+
+                if (!ok) {
+                    qDebug() << "❌ Failed to parse int from message:" << message;
+                    return;
+                }
+
+                // Convert int → enum
+                if (static_cast<traffic_signal::LightColor>(value) != traffic_signal::DEFAULT) {
+                    currentColor = static_cast<traffic_signal::LightColor>(value);
+
+                    qDebug() << "Received color:" << value;
+
+                    // Update UI
+                    updateLights();
+                }
+                else {
+                    qDebug() << "Received continue";
+                }
+
+            }
     });
 
     // Sobald verbunden: Topic abonnieren
@@ -83,10 +107,12 @@ void TrafficLight::updateLights() {
     greenLight->setStyleSheet(currentColor == traffic_signal::GREEN ? "background-color:green; border-radius:50px;" : "background-color:gray; border-radius:50px;");
 
     // Publish current color
-    // mqttClient->publishStatus("TL1", currentColor);
-    // client->sendCommand("TL1", currentColor);
     QByteArray currentColorPayload = QByteArray::number(static_cast<int>(currentColor));
-    client.publish(QMqttTopicName(staTopic), currentColorPayload);
+    if (client.state() == QMqttClient::Connected) {
+        client.publish(QMqttTopicName(staTopic), currentColorPayload);
+    } else {
+        qDebug() << "⚠️ Not connected, cannot publish";
+    }
 }
 
 // TODO: create a var for counter instead of fixed value of 5,3
