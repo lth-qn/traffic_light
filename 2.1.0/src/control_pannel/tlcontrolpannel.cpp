@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QMqttClient>
+#include "traffic_light/traffic_signal.pb.h"
 
 // const std::string STATUS_TOPIC = "traffic_signal/status";
 // const std::string COMMAND_TOPIC = "traffic_signal/command";
@@ -50,12 +51,53 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
-        [](const QByteArray &message, const QMqttTopicName &topic) {
+        [this](const QByteArray &message, const QMqttTopicName &topic) {
             // // TODO: this is use to receive cmd (protobuf)
             // qDebug() << "[Control pannel] message received" << topic.name() << ":" << message;
-            int color = message.toInt();
-            qDebug() << "Received color:" << color;
-    });
+
+            // // debug messages
+            // int color = message.toInt();
+            // qDebug() << "Received color:" << color;
+
+            // process messages
+            if (topic.name() == staTopic) {
+
+                bool ok;
+                int value = message.toInt(&ok);
+
+                if (!ok) {
+                    qDebug() << "❌ Failed to parse int from message:" << message;
+                    return;
+                }
+
+                // Convert int → enum
+                currentColor = static_cast<traffic_signal::LightColor>(value);
+
+                qDebug() << "Received color:" << value;
+
+                // Update UI
+                updateLights();
+
+                // traffic_signal::LightColor statusColour;
+
+                // if (statusColour.ParseFromArray(message.data(), message.size())) {
+
+                //     auto color = statusColour;   // enum from protobuf
+
+                //     // update internal state
+                //     currentColor = color;
+
+                //     // update UI
+                //     updateLights();
+
+                //     qDebug() << "Received color:" << color;
+
+                // } else {
+                //     qDebug() << "❌ Failed to parse protobuf message!";
+                // }
+            }
+        }
+    );
 
     // Sobald verbunden: Topic abonnieren
     QObject::connect(&client, &QMqttClient::connected, [this]() {
@@ -129,9 +171,9 @@ void TLControlPannel::onMessage(const QByteArray &payload, const QMqttTopicName 
 }
 
 void TLControlPannel::updateLights() {
-    // redLight->setStyleSheet(currentColor == traffic_signal::RED ? "background-color:red; border-radius:50px;" : "background-color:gray; border-radius:50px;");
-    // orangeLight->setStyleSheet(currentColor == traffic_signal::ORANGE ? "background-color:orange; border-radius:50px;" : "background-color:gray; border-radius:50px;");
-    // greenLight->setStyleSheet(currentColor == traffic_signal::GREEN ? "background-color:green; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    redLight->setStyleSheet(currentColor == traffic_signal::RED ? "background-color:red; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    orangeLight->setStyleSheet(currentColor == traffic_signal::ORANGE ? "background-color:orange; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    greenLight->setStyleSheet(currentColor == traffic_signal::GREEN ? "background-color:green; border-radius:50px;" : "background-color:gray; border-radius:50px;");
 
 }
 

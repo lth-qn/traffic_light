@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QtMqtt/qmqttclient.h>
 #include "traffic_light/traffic_signal.pb.h"
-#include "tlcontrolpannel.h"
+// #include "tlcontrolpannel.h"
 
 class TrafficLight : public QMainWindow { // Change from QApplication
     Q_OBJECT
