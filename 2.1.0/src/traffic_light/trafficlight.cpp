@@ -56,9 +56,12 @@ TrafficLight::TrafficLight(QWidget *parent)
 
                     // Update UI
                     updateLights();
+                    isContinuing = false;
                 }
                 else {
                     qDebug() << "Received continue";
+                    isContinuing = true;
+                    updateLights();
                 }
 
             }
