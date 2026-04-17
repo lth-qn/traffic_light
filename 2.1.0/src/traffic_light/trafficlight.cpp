@@ -35,7 +35,7 @@ TrafficLight::TrafficLight(QWidget *parent)
 
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
-        [](const QByteArray &message, const QMqttTopicName &topic) {
+        [this](const QByteArray &message, const QMqttTopicName &topic) {
             // TODO: this is use to receive cmd (protobuf)
             qDebug() << "[Traffic light] Nachricht empfangen auf" << topic.name() << ":" << message;
     });

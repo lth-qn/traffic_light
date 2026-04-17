@@ -44,6 +44,8 @@ TLControlPannel::TLControlPannel(QWidget *parent)
 
     // client = new mqtt::async_client("", CLIENT_ID);
     // client = new QMqttClient*("", CLIENT_ID);
+    client.setHostname(brokerHost);
+    client.setPort(brokerPort);
     client.setClientId("ControlPanel_1"); // In tlcontrolpannel.cpp
     
     // configure receiving cmd function
@@ -64,7 +66,7 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     QObject::connect(&client, &QMqttClient::connected, [this]() {
         qDebug() << "[Publisher] Sende Nachricht...";
         // TODO: this is use to send status (protobuf)
-        client.publish(QMqttTopicName(cmdTopic), "Hallo Welt von Qt MQTT control panel!");
+        client.publish(QMqttTopicName(cmdTopic), "Hallo Welt von Qt MQTT control panel!", 0, true);
     });
 
     // --- 4. VERBINDUNG STARTEN ---
