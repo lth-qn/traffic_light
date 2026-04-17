@@ -48,16 +48,17 @@ TrafficLight::TrafficLight(QWidget *parent)
         }
     });
 
-    // QObject::connect(&client, &QMqttClient::connected, [this]() {
-    //     qDebug() << "[Publisher] Sende Nachricht...";
-    //     // TODO: this is use to send status (protobuf)
-    //     client.publish(QMqttTopicName(staTopic), "Hallo Welt von Qt MQTT! traffic light");
+    // // QObject::connect(&client, &QMqttClient::connected, [this]() {
+    // //     qDebug() << "[Publisher] Sende Nachricht...";
+    // //     // TODO: this is use to send status (protobuf)
+    // //     client.publish(QMqttTopicName(staTopic), "Hallo Welt von Qt MQTT! traffic light");
+    // // });
+
+    // QTimer *pubTimer = new QTimer(this);
+    // connect(pubTimer, &QTimer::timeout, [this]() {
+    //     client.publish(QMqttTopicName(staTopic), "Traffic Light alive");
     // });
-    QTimer *pubTimer = new QTimer(this);
-    connect(pubTimer, &QTimer::timeout, [this]() {
-        client.publish(QMqttTopicName(staTopic), "Traffic Light alive");
-    });
-    pubTimer->start(2000);
+    // pubTimer->start(20000);
 
     // --- 4. VERBINDUNG STARTEN ---
     client.connectToHost();
@@ -71,39 +72,42 @@ TrafficLight::TrafficLight(QWidget *parent)
     timer->start(1000);
 
     updateLights();
+    nextAutomaticLight();
 }
 
 TrafficLight::~TrafficLight() {}
 
 void TrafficLight::updateLights() {
-    // redLight->setStyleSheet(currentColor == traffic_signal::RED ? "background-color:red; border-radius:50px;" : "background-color:gray; border-radius:50px;");
-    // orangeLight->setStyleSheet(currentColor == traffic_signal::ORANGE ? "background-color:orange; border-radius:50px;" : "background-color:gray; border-radius:50px;");
-    // greenLight->setStyleSheet(currentColor == traffic_signal::GREEN ? "background-color:green; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    redLight->setStyleSheet(currentColor == traffic_signal::RED ? "background-color:red; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    orangeLight->setStyleSheet(currentColor == traffic_signal::ORANGE ? "background-color:orange; border-radius:50px;" : "background-color:gray; border-radius:50px;");
+    greenLight->setStyleSheet(currentColor == traffic_signal::GREEN ? "background-color:green; border-radius:50px;" : "background-color:gray; border-radius:50px;");
 
-    // // Publish current color
-    // // mqttClient->publishStatus("TL1", currentColor);
-    // mqttClient->sendCommand("TL1", currentColor);
+    // Publish current color
+    // mqttClient->publishStatus("TL1", currentColor);
+    // client->sendCommand("TL1", currentColor);
+    QByteArray currentColorPayload = QByteArray::number(static_cast<int>(currentColor));
+    client.publish(QMqttTopicName(staTopic), currentColorPayload);
 }
 
 // TODO: create a var for counter instead of fixed value of 5,3
 void TrafficLight::nextAutomaticLight() {
-    // static int counter = 0;
-    // counter++;
-    // // Timing logic: red 5s, green 5s, orange 3s
-    // if (isContinuing) {
-    //     if ((currentColor == traffic_signal::RED && counter >= 5) ||
-    //         (currentColor == traffic_signal::GREEN && counter >= 5) ||
-    //         (currentColor == traffic_signal::ORANGE && counter >= 3)) {
+    static int counter = 0;
+    counter++;
+    // Timing logic: red 5s, green 5s, orange 3s
+    if (isContinuing) {
+        if ((currentColor == traffic_signal::RED && counter >= 5) ||
+            (currentColor == traffic_signal::GREEN && counter >= 5) ||
+            (currentColor == traffic_signal::ORANGE && counter >= 3)) {
 
-    //         switch (currentColor) {
-    //             case traffic_signal::RED: currentColor = traffic_signal::GREEN; break;
-    //             case traffic_signal::GREEN: currentColor = traffic_signal::ORANGE; break;
-    //             case traffic_signal::ORANGE: currentColor = traffic_signal::RED; break;
-    //         }
-    //         counter = 0;
-    //         updateLights();
-    //     }
-    // }
+            switch (currentColor) {
+                case traffic_signal::RED: currentColor = traffic_signal::GREEN; break;
+                case traffic_signal::GREEN: currentColor = traffic_signal::ORANGE; break;
+                case traffic_signal::ORANGE: currentColor = traffic_signal::RED; break;
+            }
+            counter = 0;
+            updateLights();
+        }
+    }
 }
 
 void TrafficLight::handleCommand(const traffic_signal::TrafficLightCommand &cmd) {

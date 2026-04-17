@@ -51,8 +51,10 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
         [](const QByteArray &message, const QMqttTopicName &topic) {
-            // TODO: this is use to receive cmd (protobuf)
-            qDebug() << "[Control pannel] message received" << topic.name() << ":" << message;
+            // // TODO: this is use to receive cmd (protobuf)
+            // qDebug() << "[Control pannel] message received" << topic.name() << ":" << message;
+            int color = message.toInt();
+            qDebug() << "Received color:" << color;
     });
 
     // Sobald verbunden: Topic abonnieren
