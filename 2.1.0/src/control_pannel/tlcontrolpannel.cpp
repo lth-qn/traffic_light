@@ -7,7 +7,7 @@
 // const std::string STATUS_TOPIC = "traffic_signal/status";
 // const std::string COMMAND_TOPIC = "traffic_signal/command";
 // const std::string CLIENT_ID = "qt_subscriber";
-const QString brokerHost = "http://127.0.0.1";
+const QString brokerHost = "127.0.0.1"; // Hint: no http://, only IP
 const quint16 brokerPort = 1883;
 const QString cmdTopic = "traffic/1/command";
 const QString staTopic = "traffic/1/status";
@@ -44,6 +44,7 @@ TLControlPannel::TLControlPannel(QWidget *parent)
 
     // client = new mqtt::async_client("", CLIENT_ID);
     // client = new QMqttClient*("", CLIENT_ID);
+    client.setClientId("ControlPanel_1"); // In tlcontrolpannel.cpp
     
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
@@ -54,7 +55,7 @@ TLControlPannel::TLControlPannel(QWidget *parent)
 
     // Sobald verbunden: Topic abonnieren
     QObject::connect(&client, &QMqttClient::connected, [this]() {
-        auto sub = client.subscribe(cmdTopic);
+        auto sub = client.subscribe(staTopic);
         if (sub) {
             qDebug() << "[Subscriber] subscribe successfully for:" << staTopic;
         }
@@ -63,7 +64,7 @@ TLControlPannel::TLControlPannel(QWidget *parent)
     QObject::connect(&client, &QMqttClient::connected, [this]() {
         qDebug() << "[Publisher] Sende Nachricht...";
         // TODO: this is use to send status (protobuf)
-        client.publish(QMqttTopicName(staTopic), "Hallo Welt von Qt MQTT control panel!");
+        client.publish(QMqttTopicName(cmdTopic), "Hallo Welt von Qt MQTT control panel!");
     });
 
     // --- 4. VERBINDUNG STARTEN ---

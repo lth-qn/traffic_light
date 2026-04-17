@@ -3,7 +3,7 @@
 #include <QPainter>
 
 // TODO: we need a configuration file/section, e.g., json
-const QString brokerHost = "http://127.0.0.1";
+const QString brokerHost = "127.0.0.1"; // Hint: no http://, only IP
 const quint16 brokerPort = 1883;
 const QString cmdTopic = "traffic/1/command";
 const QString staTopic = "traffic/1/status";
@@ -31,6 +31,7 @@ TrafficLight::TrafficLight(QWidget *parent)
 
     client.setHostname(brokerHost);
     client.setPort(brokerPort);
+    client.setClientId("TrafficLight_1"); // In trafficlight.cpp
 
     // configure receiving cmd function
     QObject::connect(&client, &QMqttClient::messageReceived, 
@@ -47,11 +48,16 @@ TrafficLight::TrafficLight(QWidget *parent)
         }
     });
 
-    QObject::connect(&client, &QMqttClient::connected, [this]() {
-        qDebug() << "[Publisher] Sende Nachricht...";
-        // TODO: this is use to send status (protobuf)
-        client.publish(QMqttTopicName(staTopic), "Hallo Welt von Qt MQTT! traffic light");
+    // QObject::connect(&client, &QMqttClient::connected, [this]() {
+    //     qDebug() << "[Publisher] Sende Nachricht...";
+    //     // TODO: this is use to send status (protobuf)
+    //     client.publish(QMqttTopicName(staTopic), "Hallo Welt von Qt MQTT! traffic light");
+    // });
+    QTimer *pubTimer = new QTimer(this);
+    connect(pubTimer, &QTimer::timeout, [this]() {
+        client.publish(QMqttTopicName(staTopic), "Traffic Light alive");
     });
+    pubTimer->start(2000);
 
     // --- 4. VERBINDUNG STARTEN ---
     client.connectToHost();
