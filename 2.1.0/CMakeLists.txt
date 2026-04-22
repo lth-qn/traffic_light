@@ -9,7 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 
 # Abhängigkeiten finden (vcpkg erledigt den Rest)
-find_package(Qt5 COMPONENTS Core Gui Widgets Mqtt REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets Mqtt REQUIRED)
 # find_package(Qt5Mqtt REQUIRED) # Entspricht QT += mqtt
 find_package(Protobuf REQUIRED)
 # find_package(Qt5 COMPONENTS Mqtt REQUIRED)

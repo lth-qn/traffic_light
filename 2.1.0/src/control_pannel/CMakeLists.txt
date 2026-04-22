@@ -1,6 +1,6 @@
 set(CMAKE_AUTOMOC ON)
 
-add_executable(traffic_pannel 
+qt_add_executable(traffic_pannel 
     ${CMAKE_SOURCE_DIR}/src/control_pannel/main_controlpannel.cpp 
     ${CMAKE_SOURCE_DIR}/src/control_pannel/tlcontrolpannel.cpp
     ${CMAKE_SOURCE_DIR}/include/tlcontrolpannel.h  # 👈 REQUIRED: for MOC
@@ -16,7 +16,7 @@ target_include_directories(traffic_pannel PRIVATE
 )
 
 target_link_libraries(traffic_pannel PRIVATE 
-    Qt5::Widgets 
-    Qt5::Mqtt 
+    Qt6::Widgets 
+    Qt6::Mqtt 
     protobuf::libprotobuf
 )

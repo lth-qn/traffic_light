@@ -1,6 +1,6 @@
 set(CMAKE_AUTOMOC ON)
 
-add_executable(traffic_light 
+qt_add_executable(traffic_light 
     ${CMAKE_SOURCE_DIR}/src/traffic_light/main_trafficlight.cpp
     ${CMAKE_SOURCE_DIR}/src/traffic_light/trafficlight.cpp
     ${CMAKE_SOURCE_DIR}/include/trafficlight.h  # 👈 REQUIRED: for MOC
@@ -20,7 +20,7 @@ target_include_directories(traffic_light PRIVATE
 )
 
 target_link_libraries(traffic_light PRIVATE 
-    Qt5::Widgets 
-    Qt5::Mqtt 
+    Qt6::Widgets 
+    Qt6::Mqtt 
     protobuf::libprotobuf
 )
